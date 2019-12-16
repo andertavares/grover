@@ -25,21 +25,21 @@ def post_process(basedir='un-goals'):
 			content = r_file.read()
 
 			# each file contains 10 samples. Each sample lies between Sample x of y and <|endoftext|>
-			# ERROR: matches everything between the first and last samples...
-			#samples = re.findall(r'Sample,\s+\d+\s+of\s+\d+\n(.*)[<\|endoftext\|>]?', content, re.DOTALL)
+
+			# splits the samples on the header 'Sample x of y'. Ignores the first element, as it is useless info
 			samples = re.split(r'Sample,\s+\d+\s+of\s+\d+\n', content)[1:]
 			
-			if samples is None:
-				print("Error! No samples found in {}. Ignoring this file...".format(r))
-				continue
+			#if samples is None:
+			#	print("Error! No samples found in {}. Ignoring this file...".format(r))
+			#	continue
 			
 			for s_num, sample in enumerate(samples):
-				print(s_num, sample[0:20])
-				continue
+				sample = re.split('<\|endoftext\|>', sample)[0]  # ignores whathever comes after <|endoftext|>
+
+				# saves the sample to its output file
 				with open(os.path.join(response_dir, 'sample_{}.txt'.format(s_num+1)), 'w') as s_file:
 					print("\tCreating file for sample {}".format(s_num+1))
-					#s_file.write(sample)
-			return
+					s_file.write(sample)
 
 if __name__ == '__main__':
 	fire.Fire(post_process)
